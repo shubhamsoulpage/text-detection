@@ -1,0 +1,68 @@
+<html>
+<head>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/toxicity"></script>
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
+
+<style>
+	body{
+		background-size: 100% ;
+		background-repeat: no-repeat;
+		background-image: url('https://miro.medium.com/max/1000/0*pyUdGjbHsZhmu7W9');
+	}
+</style>
+</head>
+<body>
+	<header>
+		<div class="container">
+			<div id="brandname">
+			</div>
+			<h2> Toxicity Analyser</h2>
+			
+		</div>
+	</header>
+
+	<div class="ml-container">
+
+		<p>Please enter the text below</p>
+		<p> (please wait after clicking predict button) </p>
+		<textarea id='message' name="message" rows="6" cols="50"></textarea>
+		<br/>
+
+		<input type="button" class="btn-info" value="predict" id='predict'>
+	</div>
+	<div id='predict_value'> </div>
+<script>
+const threshold = 0.5;
+var textarea = document.getElementById('message');
+		var message;
+		function updateResult() {
+			message = textarea.value;
+		}
+		textarea.onkeyup = updateResult;
+// let message= location.href.split("message=")[1];
+document.getElementById("predict").onclick = function () {
+	toxicity.load(threshold).then(model => {
+		const sentences = message;
+		// const sentences = ['Fuck you idiot'];
+		console.log(sentences)
+		model.classify(sentences).then(predictions => {
+			console.log(predictions);
+			var text = ""
+			for(i=0; i<7; i++){
+				if(predictions[i].results[0].match){
+					console.log(predictions[i].label + " was found with probability of " + predictions[i].results[0].probabilities[1].toFixed(2));
+					// document.getElementById('predict').innerHTML=predictions[i].label + " was found with probability of " + predictions[i].results[0].probabilities[1]
+					text += "<h1>"+ predictions[i].label + " was found with probability of " +  predictions[i].results[0].probabilities[1].toFixed(2) +"</h1>";
+					
+					document.getElementById("predict_value").innerHTML = text;
+				}else{
+					document.getElementById('predict_value').innerHTML = "<h1> No toxicity was found in the text <h2>";
+				}
+			}
+		});
+	});
+}
+</script>
+</body>
+</html>    
